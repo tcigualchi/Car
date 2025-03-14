@@ -1,0 +1,88 @@
+package com.example.mathrace;
+
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+import androidx.appcompat.app.AppCompatActivity;
+import java.util.Random;
+
+public class MainActivity extends AppCompatActivity {
+    private TextView questionText;
+    private EditText answerInput;
+    private Button submitButton;
+    private ImageView carImage;
+
+    private int correctAnswer;
+    private int carPosition = 0; // Posição do carro no tabuleiro
+    private int stepSize = 100; // Distância que o carro se move
+    private Random random = new Random();
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        questionText = findViewById(R.id.questionText);
+        answerInput = findViewById(R.id.answerInput);
+        submitButton = findViewById(R.id.submitButton);
+        carImage = findViewById(R.id.carImage);
+
+        generateQuestion(); // Gera a primeira equação
+
+        submitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                checkAnswer();
+            }
+        });
+    }
+
+    // Gera uma equação matemática aleatória
+    private void generateQuestion() {
+        int num1 = random.nextInt(10) + 1; // Número entre 1 e 10
+        int num2 = random.nextInt(10) + 1;
+        correctAnswer = num1 + num2;
+        questionText.setText("Quanto é " + num1 + " + " + num2 + "?");
+    }
+
+    // Verifica se a resposta está correta
+    private void checkAnswer() {
+        String userAnswer = answerInput.getText().toString();
+        if (userAnswer.isEmpty()) {
+            Toast.makeText(this, "Digite uma resposta!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        int answer = Integer.parseInt(userAnswer);
+        if (answer == correctAnswer) {
+            moveCarForward(); // Move o carro para frente
+        } else {
+            Toast.makeText(this, "Resposta errada! Tente novamente.", Toast.LENGTH_SHORT).show();
+        }
+        
+        answerInput.setText(""); // Limpa a entrada
+        generateQuestion(); // Gera nova questão
+    }
+
+    // Move o carro para frente
+    private void moveCarForward() {
+        carPosition += stepSize;
+        carImage.setTranslationX(carPosition);
+
+        if (carPosition >= 800) { // Se o carro chegar ao final da tela
+            Toast.makeText(this, "Parabéns! Você venceu!", Toast.LENGTH_LONG).show();
+            resetGame();
+        }
+    }
+
+    // Reinicia o jogo
+    private void resetGame() {
+        carPosition = 0;
+        carImage.setTranslationX(carPosition);
+        generateQuestion();
+    }
+}
